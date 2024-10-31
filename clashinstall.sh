@@ -3,176 +3,180 @@
 # 默认目标目录
 DEFAULT_TARGET_DIR=~/tools/clash
 
-# 检查用户是否提供了目标目录作为参数
+# # 检查用户是否提供了目标目录作为参数
 TARGET_DIR="${1:-$DEFAULT_TARGET_DIR}"
-CLASH_URL="https://ccfddl.github.io/your_clash_file"  # 替换为实际的 Clash 文件下载链接
+DOWNLOAD_OPTION="${2:-yes}"
+CLASH_URL="https://raw.githubusercontent.com/LttGenius/cflinux_proxy/refs/heads/main/clash"  # 替换为实际的 Clash 文件下载链接
 
-# 创建目标文件夹
+# # 创建目标文件夹
 mkdir -p "$TARGET_DIR"
+mkdir -p "$TARGET_DIR/log"
 
-# 下载 Clash 文件
-echo "正在下载 Clash 文件..."
-curl -L "$CLASH_URL" -o "$TARGET_DIR/clash"  # 将下载的文件命名为 clash
-
-# 给下载的文件赋予可执行权限
-chmod +x "$TARGET_DIR/clash"
+# # 下载 Clash 文件
+if [[ "$DOWNLOAD_OPTION" == "yes" ]]; then
+    echo "正在下载 Clash 文件到 $TARGET_DIR ..."
+    curl -L "$CLASH_URL" -o "$TARGET_DIR/clash"  # 将下载的文件命名为 clash
+    # 给下载的文件赋予可执行权限
+    chmod +x "$TARGET_DIR/clash"
+else
+    echo "跳过 Clash 文件下载。"
+fi
 
 # 将 clashof 函数添加到 ~/.bashrc
 BASHRC_FILE="$HOME/.bashrc"
+cat << 'EOF' >> "$BASHRC_FILE"
 
-echo "正在更新 .bashrc 文件..."
-{
-echo "# >>> clashof initialize >>>"
-echo "CLASH_PATH=~/tools/clash/ # clash文件的根目录"
-echo "__clash_app_on(){"
-echo "    if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then"
-echo "        # 删除log文件"
-echo "        echo "Clash has been enabled.""
-echo "    else"
-echo "        # 启用 Clash"
-echo "        nohup "$CLASH_PATH/clash" > "$CLASH_PATH/log/clash.log" 2>&1 &"
-echo "        echo -e "\e[32mClash enabled successfully.\e[0m" "
-echo "    fi"
-echo "}"
-echo ""
-echo "__clash_app_off(){"
-echo "    if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then"
-echo "        pkill -u "$(whoami)" -f "$CLASH_PATH""
-echo "        # rm -f "$CLASH_PATH/log/clash.log""
-echo "        echo -e "\e[32mClash disabled successfully.\e[0m""
-echo "    else"
-echo "        echo "Clash is not enabled.""
-echo "    fi"
-echo "}"
-echo ""
-echo "__http_proxy_on(){"
-echo "    # 检查代理是否已设置"
-echo "    if [ -z "$http_proxy" ] && [ -z "$https_proxy" ]; then"
-echo "        export http_proxy="http://127.0.0.1:7890""
-echo "        export https_proxy="http://127.0.0.1:7890""
-echo "        echo -e "\e[32mHTTP/HTTPS Proxy enabled.\e[0m""
-echo "    else"
-echo "        echo "HTTP/HTTPS Proxy is already enabled.""
-echo "    fi"
-echo "}"
-echo ""
-echo "__http_proxy_off(){"
-echo "    # 检查代理是否已设置"
-echo "    if [ -n "$http_proxy" ] && [ -n "$https_proxy" ]; then"
-echo "        unset http_proxy"
-echo "        unset https_proxy"
-echo "        echo -e "\e[32mHTTP/HTTPS Proxy disabled.\e[0m""
-echo "    else"
-echo "        echo "HTTP/HTTPS Proxy is not enabled.""
-echo "    fi"
-echo "}"
-echo ""
-echo "clashof() {"
-echo "    # clashof 用于启用/关闭 Clash及代理"
-echo "    # 命令解释："
-echo "    #  clashof: 如此此时终端没有开启代理，则开启代理；否则关闭代理"
-echo "    #  clashof on: 启用 Clash及代理"
-echo "    #  clashof off: 关闭 Clash及代理"
-echo "    #  clashof status: 查看 Clash及代理状态"
-echo "    #  clashof help: 查看帮助"
-echo "    #  clashof proxy on: 启用代理"
-echo "    #  clashof proxy off: 关闭代理"
-echo "    #  clashof clash on: 启用 Clash"
-echo "    #  clashof clash off: 关闭 Clash"
-echo "    case "$1" in"
-echo "        on)"
-echo "            __clash_app_on"
-echo "            __http_proxy_on"
-echo "            ;;"
-echo "        off)"
-echo "            __clash_app_off"
-echo "            __http_proxy_off"
-echo "            ;;"
-echo "        status)"
-echo "            # 查看 Clash 和代理的状态"
-echo "            if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then"
-echo "                echo -e "\e[33mClash is running.\e[0m""
-echo "                # 查看 Clash 进程的 PID"
-echo "                pid=$(pgrep -u "$(whoami)" -f "$CLASH_PATH")"
-echo "                echo -e "\e[35mClash PID: $pid\e[0m""
-echo "            else"
-echo "                echo -e "\e[32mClash is not running.\e[0m""
-echo "            fi"
-echo ""
-echo "            if [ -n "$http_proxy" ] && [ -n "$https_proxy" ]; then"
-echo "                echo -e "\e[33mHTTP/HTTPS Proxy is enabled.\e[0m""
-echo "                # 查看代理设置"
-echo "                echo -e "\e[35mHTTP Proxy: $http_proxy\e[0m""
-echo "                echo -e "\e[35mHTTPS Proxy: $https_proxy\e[0m""
-echo "            else"
-echo "                echo -e "\e[32mHTTP/HTTPS Proxy is disabled.\e[0m""
-echo "            fi"
-echo "            ;;"
-echo "        help)"
-echo "            echo -e "\e[36m=====================================clashof=====================================\e[0m""
-echo "            echo -e "\e[36mUsage: clashof [on|off|status|help|proxy [on|off]|clash [on|off]]\e[0m""
-echo "            echo -e "\e[36m-----------------------------------------------------------------\e[0m""
-echo "            echo -e "\e[36mclashof           |  如此此时终端没有开启代理，则开启代理；否则关闭代理\e[0m""
-echo "            echo -e "\e[36mclashof on        |  启用 Clash及代理\e[0m""
-echo "            echo -e "\e[36mclashof off       |  关闭 Clash及代理\e[0m""
-echo "            echo -e "\e[36mclashof status    |  查看 Clash及代理状态\e[0m""
-echo "            echo -e "\e[36mclashof help      |  查看帮助\e[0m""
-echo "            echo -e "\e[36mclashof proxy on  |  启用代理\e[0m""
-echo "            echo -e "\e[36mclashof proxy off |  关闭代理\e[0m""
-echo "            echo -e "\e[36mclashof clash on  |  启用 Clash\e[0m""
-echo "            echo -e "\e[36mclashof clash off |  关闭 Clash\e[0m""
-echo "            echo -e "\e[36m==============================>all papers accepted<==============================\e[0m""
-echo "            ;;"
-echo "        proxy)"
-echo "            case "$2" in"
-echo "                on)"
-echo "                    __http_proxy_on"
-echo "                    ;;"
-echo "                off)"
-echo "                    __http_proxy_off"
-echo "                    ;;"
-echo "                *)"
-echo "                    echo -e "\e[31mInvalid command: $2, use 'clashof help' to get help.\e[0m""
-echo "                    ;;"
-echo "            esac"
-echo "            ;;"
-echo "        clash)"
-echo "            case "$2" in"
-echo "                on)"
-echo "                    clash_on"
-echo "                    ;;"
-echo "                off)"
-echo "                    clash_off"
-echo "                    ;;"
-echo "                *)"
-echo "                    echo -e "\e[31mInvalid command: $2, use 'clashof help' to get help.\e[0m""
-echo "                    ;;"
-echo "            esac"
-echo "            ;;"
-echo "        "")"
-echo "            # 如果没有参数，则切换当前用户的 Clash 和代理的开关 (以为clash是否开启为标准)"
-echo "            if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then"
-echo "                if [ -z "$http_proxy" ] && [ -z "$https_proxy" ]; then"
-echo "                    __http_proxy_on"
-echo "                    echo -e "\e[34mClash and proxy enabled.\e[0m""
-echo "                else"
-echo "                    __http_proxy_off"
-echo "                    __clash_app_off"
-echo "                    echo -e "\e[34mClash and proxy disabled.\e[0m""
-echo "                fi"
-echo "            else"
-echo "                __clash_app_on"
-echo "                __http_proxy_on"
-echo "                echo -e "\e[34mClash and proxy enabled.\e[0m""
-echo "            fi"
-echo "            ;;"
-echo "        *)"
-echo "            echo -e "\e[31mInvalid command: $1, use 'clashof help' to get help.\e[0m""
-echo "            ;;"
-echo "    esac"
-echo "}"
-echo "# <<< clashof initialize <<<"
-} >> "$BASHRC_FILE"
+# >>> clashof initialize >>>
+CLASH_PATH=~/tools/clash/ # clash文件的根目录
+__clash_app_on(){
+    if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then
+        # 删除log文件
+        echo "Clash has been enabled."
+    else
+        # 启用 Clash
+        nohup "$CLASH_PATH/clash" > "$CLASH_PATH/log/clash.log" 2>&1 &
+        echo -e "\e[32mClash enabled successfully.\e[0m" 
+    fi
+}
+
+__clash_app_off(){
+    if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then
+        pkill -u "$(whoami)" -f "$CLASH_PATH"
+        # rm -f "$CLASH_PATH/log/clash.log"
+        echo -e "\e[32mClash disabled successfully.\e[0m"
+    else
+        echo "Clash is not enabled."
+    fi
+}
+
+__http_proxy_on(){
+    # 检查代理是否已设置
+    if [ -z "$http_proxy" ] && [ -z "$https_proxy" ]; then
+        export http_proxy="http://127.0.0.1:7890"
+        export https_proxy="http://127.0.0.1:7890"
+        echo -e "\e[32mHTTP/HTTPS Proxy enabled.\e[0m"
+    else
+        echo "HTTP/HTTPS Proxy is already enabled."
+    fi
+}
+
+__http_proxy_off(){
+    # 检查代理是否已设置
+    if [ -n "$http_proxy" ] && [ -n "$https_proxy" ]; then
+        unset http_proxy
+        unset https_proxy
+        echo -e "\e[32mHTTP/HTTPS Proxy disabled.\e[0m"
+    else
+        echo "HTTP/HTTPS Proxy is not enabled."
+    fi
+}
+
+clashof() {
+    # clashof 用于启用/关闭 Clash及代理
+    # 命令解释：
+    #  clashof: 如此此时终端没有开启代理，则开启代理；否则关闭代理
+    #  clashof on: 启用 Clash及代理
+    #  clashof off: 关闭 Clash及代理
+    #  clashof status: 查看 Clash及代理状态
+    #  clashof help: 查看帮助
+    #  clashof proxy on: 启用代理
+    #  clashof proxy off: 关闭代理
+    #  clashof clash on: 启用 Clash
+    #  clashof clash off: 关闭 Clash
+    case "$1" in
+        on)
+            __clash_app_on
+            __http_proxy_on
+            ;;
+        off)
+            __clash_app_off
+            __http_proxy_off
+            ;;
+        status)
+            # 查看 Clash 和代理的状态
+            if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then
+                echo -e "\e[33mClash is running.\e[0m"
+                # 查看 Clash 进程的 PID
+                pid=$(pgrep -u "$(whoami)" -f "$CLASH_PATH")
+                echo -e "\e[35mClash PID: $pid\e[0m"
+            else
+                echo -e "\e[32mClash is not running.\e[0m"
+            fi
+
+            if [ -n "$http_proxy" ] && [ -n "$https_proxy" ]; then
+                echo -e "\e[33mHTTP/HTTPS Proxy is enabled.\e[0m"
+                # 查看代理设置
+                echo -e "\e[35mHTTP Proxy: $http_proxy\e[0m"
+                echo -e "\e[35mHTTPS Proxy: $https_proxy\e[0m"
+            else
+                echo -e "\e[32mHTTP/HTTPS Proxy is disabled.\e[0m"
+            fi
+            ;;
+        help)
+            echo -e "\e[36m=====================================clashof=====================================\e[0m"
+            echo -e "\e[36mUsage: clashof [on|off|status|help|proxy [on|off]|clash [on|off]]\e[0m"
+            echo -e "\e[36m-----------------------------------------------------------------\e[0m"
+            echo -e "\e[36mclashof           |  如此此时终端没有开启代理，则开启代理；否则关闭代理\e[0m"
+            echo -e "\e[36mclashof on        |  启用 Clash及代理\e[0m"
+            echo -e "\e[36mclashof off       |  关闭 Clash及代理\e[0m"
+            echo -e "\e[36mclashof status    |  查看 Clash及代理状态\e[0m"
+            echo -e "\e[36mclashof help      |  查看帮助\e[0m"
+            echo -e "\e[36mclashof proxy on  |  启用代理\e[0m"
+            echo -e "\e[36mclashof proxy off |  关闭代理\e[0m"
+            echo -e "\e[36mclashof clash on  |  启用 Clash\e[0m"
+            echo -e "\e[36mclashof clash off |  关闭 Clash\e[0m"
+            echo -e "\e[36m==============================>all papers accepted<==============================\e[0m"
+            ;;
+        proxy)
+            case "$2" in
+                on)
+                    __http_proxy_on
+                    ;;
+                off)
+                    __http_proxy_off
+                    ;;
+                *)
+                    echo -e "\e[31mInvalid command: $2, use 'clashof help' to get help.\e[0m"
+                    ;;
+            esac
+            ;;
+        clash)
+            case "$2" in
+                on)
+                    clash_on
+                    ;;
+                off)
+                    clash_off
+                    ;;
+                *)
+                    echo -e "\e[31mInvalid command: $2, use 'clashof help' to get help.\e[0m"
+                    ;;
+            esac
+            ;;
+        "")
+            # 如果没有参数，则切换当前用户的 Clash 和代理的开关 (以为clash是否开启为标准)
+            if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then
+                if [ -z "$http_proxy" ] && [ -z "$https_proxy" ]; then
+                    __http_proxy_on
+                    echo -e "\e[34mClash and proxy enabled.\e[0m"
+                else
+                    __http_proxy_off
+                    __clash_app_off
+                    echo -e "\e[34mClash and proxy disabled.\e[0m"
+                fi
+            else
+                __clash_app_on
+                __http_proxy_on
+                echo -e "\e[34mClash and proxy enabled.\e[0m"
+            fi
+            ;;
+        *)
+            echo -e "\e[31mInvalid command: $1, use 'clashof help' to get help.\e[0m"
+            ;;
+    esac
+}
+# <<< clashof initialize <<<
+EOF
 
 # 提示用户重新加载 .bashrc
-echo ".bashrc 文件已更新。请运行 'source ~/.bashrc' 使更改生效。"
+echo -e "\e[34m.bashrc 文件已更新。请运行 'source ~/.bashrc' 使更改生效。\e[0m"
