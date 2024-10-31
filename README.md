@@ -1,5 +1,6 @@
 ### Install
-下载**clashinstall.sh**到用户目录下，输入** bash /path/to/clashinstall.sh **执行shell脚本进行安装和初始化
+- 下载**clashinstall.sh**到用户目录下，输入**bash /path/to/clashinstall.s**执行shell脚本进行安装和初始化
+- 在终端输入**source ~/.bashrc**
 
 ---
 
@@ -14,7 +15,7 @@ clashinstall.sh [--undowm | --unbash | --dir "your path"]
 ---
 
 ### clashof
-clashof 用于启用/关闭 Clash及代理
+clashof 用于启用/关闭 Clash及代理，在终端输入一下命令即可执行
 -  clashof: 如此此时终端没有开启代理，则开启代理；否则关闭代理
 -  clashof on: 启用 Clash及代理
 -  clashof off: 关闭 Clash及代理
