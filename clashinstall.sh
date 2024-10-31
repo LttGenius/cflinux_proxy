@@ -2,7 +2,7 @@
 
 
 # 默认参数
-TARGET_DIR=$HOME/tools/clash
+TARGET_DIR=$HOME/clash
 DOWNLOAD_OPTION="yes"
 BASH_UPDATE_OPTION="yes"
 CLASH_URL="https://raw.githubusercontent.com/LttGenius/cflinux_proxy/refs/heads/main/clash"  # 替换为实际的 Clash 文件下载链接

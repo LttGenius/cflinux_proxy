@@ -6,7 +6,7 @@
 ### clashinstall.sh使用方法
 clashinstall.sh [--undowm | --unbash | --dir "your path"]
 
-- clashinstall.sh 将clash下载到默认目录 "~/tools/clash"，并向.bashrc写入clashof命令
+- clashinstall.sh 将clash下载到默认目录 "~/clash"，并向.bashrc写入clashof命令
 - clashinstall.sh --undown 不进行下载
 - clashinstall.sh --unbash 不向.bashrc文件写入clashof命令
 - clashinstall.sh --dir "your path" 将clash下载到目录"your path"下
