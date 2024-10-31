@@ -97,7 +97,7 @@ __http_proxy_off(){
 clashof() {
     # clashof 用于启用/关闭 Clash及代理
     # 命令解释：
-    #  clashof: 如此此时终端没有开启代理，则开启代理；否则关闭代理
+    #  clashof: 如此时终端没有开启代理和clash，则开启代理和clash；否则关闭代理和clash
     #  clashof on: 启用 Clash及代理
     #  clashof off: 关闭 Clash及代理
     #  clashof status: 查看 Clash及代理状态
@@ -139,7 +139,7 @@ clashof() {
             echo -e "\e[36m=====================================clashof=====================================\e[0m"
             echo -e "\e[36mUsage: clashof [on|off|status|help|proxy [on|off]|clash [on|off]]\e[0m"
             echo -e "\e[36m-----------------------------------------------------------------\e[0m"
-            echo -e "\e[36mclashof           |  如此此时终端没有开启代理，则开启代理；否则关闭代理\e[0m"
+            echo -e "\e[36mclashof           |  如此时终端没有开启代理和clash，则开启代理和clash；否则关闭代理和clash\e[0m"
             echo -e "\e[36mclashof on        |  启用 Clash及代理\e[0m"
             echo -e "\e[36mclashof off       |  关闭 Clash及代理\e[0m"
             echo -e "\e[36mclashof status    |  查看 Clash及代理状态\e[0m"
