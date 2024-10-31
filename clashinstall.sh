@@ -29,12 +29,12 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-# # 创建目标文件夹
-mkdir -p "$TARGET_DIR"
-mkdir -p "$TARGET_DIR/log"
 
 # # 下载 Clash 文件
 if [[ "$DOWNLOAD_OPTION" == "yes" ]]; then
+    # # 创建目标文件夹
+    mkdir -p "$TARGET_DIR"
+    mkdir -p "$TARGET_DIR/log"
     echo "正在下载 Clash 文件到 $TARGET_DIR ..."
     curl -L "$CLASH_URL" -o "$TARGET_DIR/clash"  # 将下载的文件命名为 clash
     # 给下载的文件赋予可执行权限
