@@ -1,12 +1,33 @@
 #!/bin/bash
 
-# 默认目标目录
-DEFAULT_TARGET_DIR=~/tools/clash
 
-# # 检查用户是否提供了目标目录作为参数
-TARGET_DIR="${1:-$DEFAULT_TARGET_DIR}"
-DOWNLOAD_OPTION="${2:-yes}"
+# 默认参数
+TARGET_DIR=$HOME/tools/clash
+DOWNLOAD_OPTION="yes"
+BASH_UPDATE_OPTION="yes"
 CLASH_URL="https://raw.githubusercontent.com/LttGenius/cflinux_proxy/refs/heads/main/clash"  # 替换为实际的 Clash 文件下载链接
+
+# 解析参数
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        --dir)
+            TARGET_DIR="$2"
+            shift 2
+            ;;
+        --nodown)
+            DOWNLOAD_OPTION="no"
+            shift
+            ;;
+        --nobash)
+            BASH_UPDATE_OPTION="no"
+            shift
+            ;;
+        *)
+            echo "未知参数: $1"
+            exit 1
+            ;;
+    esac
+done
 
 # # 创建目标文件夹
 mkdir -p "$TARGET_DIR"
@@ -23,11 +44,13 @@ else
 fi
 
 # 将 clashof 函数添加到 ~/.bashrc
+# 检查是否需要将 clashof 函数写入到 ~/.bashrc
+if [[ "$BASH_UPDATE_OPTION" == "yes" ]]; then
 BASHRC_FILE="$HOME/.bashrc"
+echo "# >>> clashof initialize >>>" >> "$BASHRC_FILE"
+echo "CLASH_PATH=\$HOME/tools/clash/" >> "$BASHRC_FILE"
 cat << 'EOF' >> "$BASHRC_FILE"
 
-# >>> clashof initialize >>>
-CLASH_PATH=~/tools/clash/ # clash文件的根目录
 __clash_app_on(){
     if pgrep -u "$(whoami)" -f "$CLASH_PATH" > /dev/null; then
         # 删除log文件
@@ -180,3 +203,6 @@ EOF
 
 # 提示用户重新加载 .bashrc
 echo -e "\e[34m.bashrc 文件已更新。请运行 'source ~/.bashrc' 使更改生效。\e[0m"
+else
+    echo "跳过 .bashrc 文件更新。"
+fi
