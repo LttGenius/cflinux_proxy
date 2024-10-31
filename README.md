@@ -25,6 +25,7 @@ clashof 用于启用/关闭 Clash及代理，在终端输入一下命令即可�
 -  clashof proxy off: 关闭代理
 -  clashof clash on: 启用 Clash
 -  clashof clash off: 关闭 Clash
+-  平常使用只需要执行一次clashof即可开启clash和代理，后续再其他会话窗口只需要再次执行clashof即可开启代理。在开启了代理和窗口执行clashof会关闭clash和代理。
 
 ---
 
