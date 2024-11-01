@@ -166,10 +166,10 @@ clashof() {
         clash)
             case "$2" in
                 on)
-                    clash_on
+                    __clash_app_on
                     ;;
                 off)
-                    clash_off
+                    __clash_app_off
                     ;;
                 *)
                     echo -e "\e[31mInvalid command: $2, use 'clashof help' to get help.\e[0m"
