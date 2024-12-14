@@ -47,8 +47,9 @@ fi
 # 检查是否需要将 clashof 函数写入到 ~/.bashrc
 if [[ "$BASH_UPDATE_OPTION" == "yes" ]]; then
 BASHRC_FILE="$HOME/.bashrc"
+echo -e "\n" >> "$BASHRC_FILE"
 echo "# >>> clashof initialize >>>" >> "$BASHRC_FILE"
-echo "CLASH_PATH=\$HOME/tools/clash/" >> "$BASHRC_FILE"
+echo "CLASH_PATH=$TARGET_DIR" >> "$BASHRC_FILE"
 cat << 'EOF' >> "$BASHRC_FILE"
 
 __clash_app_on(){
